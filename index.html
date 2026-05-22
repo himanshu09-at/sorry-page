@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>I'm Sorry — From My Heart to Yours</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --blush: #f9c5c5;
+      --peach: #f7dcc8;
+      --lavender: #dcd0f0;
+      --cream: #fdf6f0;
+      --gold: #e8c97e;
+      --gold-light: #f5e4b0;
+      --rose: #e8939a;
+      --text-dark: #3a2a2e;
+      --text-mid: #6b4a52;
+      --text-soft: #9a7480;
+      --glass-bg: rgba(255, 255, 255, 0.45);
+      --glass-border: rgba(255, 255, 255, 0.65);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(135deg, #fce8e8 0%, #fdf0f8 25%, #ede8f8 50%, #fdf0e8 75%, #fce8e8 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 18s ease infinite;
+      color: var(--text-dark);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ─── Particles ─── */
+    #particle-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.55;
+    }
+
+    /* ─── Floating Hearts ─── */
+    .hearts-layer {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .heart {
+      position: absolute;
+      bottom: -60px;
+      font-size: 1.2rem;
+      opacity: 0;
+      animation: floatHeart linear infinite;
+    }
+
+    @keyframes floatHeart {
+      0%   { transform: translateY(0) rotate(-10deg) scale(0.8); opacity: 0; }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.2; }
+      100% { transform: translateY(-110vh) rotate(10deg) scale(1.1); opacity: 0; }
+    }
+
+    /* ─── Layout ─── */
+    .page-wrapper {
+      position: relative;
+      z-index: 2;
+    }
+
+    section {
+      padding: 90px 24px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* ─── Fade-in observer ─── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.85s cubic-bezier(.22,.68,0,1.2), transform 0.85s cubic-bezier(.22,.68,0,1.2);
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── Hero ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 24px;
+      gap: 0;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 1s 0.3s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.6rem, 7vw, 5.2rem);
+      font-weight: 500;
+      line-height: 1.12;
+      color: var(--text-dark);
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 1s 0.6s forwards;
+    }
+
+    .hero-title .heart-inline {
+      color: var(--rose);
+      display: inline-block;
+      animation: heartPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes heartPulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.18); }
+    }
+
+    .hero-subtitle {
+      font-family: 'DM Sans', sans-serif;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      font-weight: 300;
+      line-height: 1.75;
+      color: var(--text-mid);
+      max-width: 600px;
+      margin: 0 auto 52px;
+      opacity: 0;
+      animation: fadeUp 1s 0.9s forwards;
+    }
+
+    .scroll-hint {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      animation: fadeUp 1s 1.4s forwards;
+    }
+
+    .scroll-hint span {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, var(--rose), transparent);
+      animation: scrollBounce 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollBounce {
+      0%, 100% { transform: scaleY(1); opacity: 0.5; }
+      50%       { transform: scaleY(1.3); opacity: 1; }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Glass Card ─── */
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      box-shadow:
+        0 8px 40px rgba(200, 120, 140, 0.10),
+        0 2px 8px rgba(200, 120, 140, 0.06),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+      padding: 52px 56px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 60%);
+      pointer-events: none;
+      border-radius: inherit;
+    }
+
+    /* ─── Section Label ─── */
+    .section-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 14px;
+      display: block;
+      font-weight: 500;
+    }
+
+    /* ─── Apology Message ─── */
+    .apology-section {
+      padding-top: 30px;
+    }
+
+    .apology-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.9rem, 5vw, 3rem);
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 40px;
+      text-align: center;
+      color: var(--text-dark);
+    }
+
+    .apology-heading em {
+      font-style: italic;
+      color: var(--rose);
+    }
+
+    .apology-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.15rem, 2.4vw, 1.38rem);
+      font-weight: 400;
+      line-height: 2;
+      color: var(--text-mid);
+      position: relative;
+      z-index: 1;
+    }
+
+    .apology-text .line-break {
+      display: block;
+      height: 0.6em;
+    }
+
+    .apology-text .emphasis {
+      color: var(--text-dark);
+      font-weight: 500;
+    }
+
+    .apology-text .should-have {
+      color: var(--rose);
+      font-style: italic;
+    }
+
+    .apology-text .closing {
+      display: block;
+      margin-top: 28px;
+      font-size: 1.05em;
+      color: var(--text-dark);
+      font-weight: 500;
+    }
+
+    .gold-divider {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 36px auto;
+    }
+
+    /* ─── What I Realized ─── */
+    .realized-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 400;
+      text-align: center;
+      margin-bottom: 16px;
+      color: var(--text-dark);
+    }
+
+    .realized-sub {
+      text-align: center;
+      color: var(--text-soft);
+      font-size: 0.95rem;
+      font-weight: 300;
+      margin-bottom: 56px;
+    }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 28px;
+      top: 24px;
+      bottom: 24px;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--rose), var(--lavender), var(--peach));
+      opacity: 0.5;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+      padding: 24px 0;
+      position: relative;
+    }
+
+    .timeline-dot {
+      flex-shrink: 0;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blush), var(--lavender));
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 4px 20px rgba(200, 120, 140, 0.15);
+      position: relative;
+      z-index: 1;
+    }
+
+    .timeline-content {
+      flex: 1;
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      box-shadow: 0 4px 20px rgba(200, 120, 140, 0.07);
+    }
+
+    .timeline-content h4 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+
+    .timeline-content p {
+      font-size: 0.9rem;
+      font-weight: 300;
+      color: var(--text-soft);
+      line-height: 1.7;
+    }
+
+    /* ─── You Matter ─── */
+    .matters-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 400;
+      text-align: center;
+      margin-bottom: 16px;
+      color: var(--text-dark);
+    }
+
+    .matters-sub {
+      text-align: center;
+      color: var(--text-soft);
+      font-size: 0.95rem;
+      font-weight: 300;
+      margin-bottom: 56px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .matters-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .matters-grid { grid-template-columns: 1fr; }
+      .glass-card { padding: 36px 28px; }
+    }
+
+    .matter-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 32px 28px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: default;
+    }
+
+    .matter-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 48px rgba(200, 120, 140, 0.16);
+    }
+
+    .matter-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .matter-card:nth-child(1)::after { background: linear-gradient(90deg, var(--rose), var(--blush)); }
+    .matter-card:nth-child(2)::after { background: linear-gradient(90deg, var(--lavender), var(--rose)); }
+    .matter-card:nth-child(3)::after { background: linear-gradient(90deg, var(--peach), var(--gold)); }
+    .matter-card:nth-child(4)::after { background: linear-gradient(90deg, var(--blush), var(--lavender)); }
+
+    .matter-card .card-icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      display: block;
+      animation: iconFloat 4s ease-in-out infinite;
+    }
+
+    .matter-card:nth-child(2) .card-icon { animation-delay: 0.8s; }
+    .matter-card:nth-child(3) .card-icon { animation-delay: 1.6s; }
+    .matter-card:nth-child(4) .card-icon { animation-delay: 2.4s; }
+
+    @keyframes iconFloat {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-6px); }
+    }
+
+    .matter-card h4 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .matter-card p {
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: var(--text-soft);
+      line-height: 1.75;
+    }
+
+    /* ─── Forgiveness Section ─── */
+    .forgive-section {
+      text-align: center;
+      padding-bottom: 120px;
+    }
+
+    .heart-illustration {
+      margin: 0 auto 52px;
+      width: 140px;
+      height: 140px;
+      position: relative;
+    }
+
+    .heart-glow-wrap {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .heart-glow-wrap::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(232, 147, 154, 0.35) 0%, transparent 70%);
+      animation: glowPulse 3s ease-in-out infinite;
+      border-radius: 50%;
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50%       { transform: scale(1.4); opacity: 1; }
+    }
+
+    .heart-svg {
+      width: 72px;
+      height: 72px;
+      animation: heartBeat 1.8s ease-in-out infinite;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 4px 20px rgba(232, 147, 154, 0.5));
+    }
+
+    @keyframes heartBeat {
+      0%   { transform: scale(1); }
+      14%  { transform: scale(1.18); }
+      28%  { transform: scale(1); }
+      42%  { transform: scale(1.12); }
+      70%  { transform: scale(1); }
+      100% { transform: scale(1); }
+    }
+
+    .forgive-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--text-dark);
+      margin-bottom: 20px;
+    }
+
+    .forgive-sub {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--text-soft);
+      max-width: 480px;
+      margin: 0 auto 52px;
+      line-height: 1.8;
+    }
+
+    .forgive-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 18px 44px;
+      background: linear-gradient(135deg, var(--rose), #d46b78);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      border: none;
+      border-radius: 60px;
+      cursor: pointer;
+      box-shadow:
+        0 8px 32px rgba(200, 100, 120, 0.35),
+        0 2px 8px rgba(200, 100, 120, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+    }
+
+    .forgive-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      border-radius: inherit;
+    }
+
+    .forgive-btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow:
+        0 16px 48px rgba(200, 100, 120, 0.45),
+        0 4px 12px rgba(200, 100, 120, 0.25);
+    }
+
+    .forgive-btn:active {
+      transform: translateY(-1px) scale(0.99);
+    }
+
+    .forgive-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .forgive-btn .btn-spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    .forgive-btn.loading .btn-spinner { display: inline-block; }
+    .forgive-btn.loading .btn-label   { opacity: 0.75; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ─── Forgiven Modal ─── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(60, 20, 30, 0.4);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-box {
+      background: rgba(255, 252, 250, 0.96);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      padding: 56px 52px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      transform: scale(0.88);
+      transition: transform 0.4s cubic-bezier(.22,.68,0,1.2);
+      box-shadow: 0 24px 80px rgba(200, 100, 120, 0.25);
+    }
+
+    .modal-overlay.active .modal-box {
+      transform: scale(1);
+    }
+
+    .modal-emoji {
+      font-size: 3.5rem;
+      margin-bottom: 24px;
+      display: block;
+      animation: heartBeat 1.8s ease-in-out infinite;
+    }
+
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      margin-bottom: 14px;
+    }
+
+    .modal-text {
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: var(--text-soft);
+      line-height: 1.8;
+      margin-bottom: 36px;
+    }
+
+    .modal-close {
+      display: inline-block;
+      padding: 12px 32px;
+      background: transparent;
+      border: 1px solid var(--rose);
+      color: var(--rose);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    .modal-close:hover {
+      background: var(--rose);
+      color: #fff;
+    }
+
+    /* ─── Footer ─── */
+    .page-footer {
+      text-align: center;
+      padding: 40px 24px 60px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      letter-spacing: 0.1em;
+      font-weight: 300;
+      position: relative;
+      z-index: 2;
+    }
+
+    .page-footer .footer-heart {
+      color: var(--rose);
+      display: inline-block;
+      animation: heartPulse 2s ease-in-out infinite;
+    }
+
+    /* ─── Typed cursor ─── */
+    .typed-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.1em;
+      background: var(--rose);
+      vertical-align: middle;
+      margin-left: 2px;
+      animation: blink 0.9s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Particle Canvas -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- Floating Hearts Layer -->
+<div class="hearts-layer" id="heartsLayer"></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <span class="modal-emoji">💗</span>
+    <h2 class="modal-title">Thank You.</h2>
+    <p class="modal-text">
+      You have no idea how much this means to me.<br />
+      I promise to always show up for you — in every small moment, in every hard day.<br /><br />
+      You are my everything, and I will never let you feel alone again.
+    </p>
+    <button class="modal-close" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <span class="hero-eyebrow">A letter from my heart</span>
+    <h1 class="hero-title">
+      I Should Have<br />Been There For You
+      <span class="heart-inline">❤️</span>
+    </h1>
+    <p class="hero-subtitle">
+      You needed care, comfort, and someone who truly understood your pain…<br />
+      and I failed in that moment. I'm deeply sorry.
+    </p>
+    <div class="scroll-hint">
+      <span>Read on</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ── APOLOGY MESSAGE ── -->
+  <section class="apology-section">
+    <div class="fade-in">
+      <span class="section-label" style="text-align:center;display:block;">From me to you</span>
+      <h2 class="apology-heading">The Words I Need<br /><em>You to Hear</em></h2>
+    </div>
+    <div class="glass-card fade-in" style="margin-top: 20px;">
+      <div class="apology-text" id="apologyText"></div>
+    </div>
+  </section>
+
+  <!-- ── WHAT I REALIZED ── -->
+  <section>
+    <div class="fade-in">
+      <span class="section-label" style="text-align:center;display:block;">What I Realized</span>
+      <h2 class="realized-heading">Lessons I Carry<br />In My Heart</h2>
+      <p class="realized-sub">The things I understand now — things I wish I had understood sooner.</p>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item fade-in">
+        <div class="timeline-dot">🤍</div>
+        <div class="timeline-content">
+          <h4>Love is showing up emotionally</h4>
+          <p>Being physically present is not enough. Love is staying attuned — reading between the lines, noticing the silence, and choosing to step forward when someone needs you most.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item fade-in">
+        <div class="timeline-dot">🌿</div>
+        <div class="timeline-content">
+          <h4>Care matters more than words</h4>
+          <p>Saying "I care" is meaningless without action. A single thoughtful message, a check-in call, the smallest gesture — those are what truly say, "You matter to me."</p>
+        </div>
+      </div>
+
+      <div class="timeline-item fade-in">
+        <div class="timeline-dot">✨</div>
+        <div class="timeline-content">
+          <h4>Small moments matter deeply</h4>
+          <p>The big gestures are easy to remember. But it is the small moments — a kind word during a hard afternoon, remembering to ask "how are you feeling?" — that build trust and safety in love.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item fade-in">
+        <div class="timeline-dot">💐</div>
+        <div class="timeline-content">
+          <h4>Her pain deserves my full presence</h4>
+          <p>You were scared and hurting that day — not just physically, but emotionally too. I should have made you feel seen. I should have held that space with you, not turned away from it.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item fade-in">
+        <div class="timeline-dot">🌙</div>
+        <div class="timeline-content">
+          <h4>Growth means choosing better — always</h4>
+          <p>I cannot undo that day. But I can commit to being more thoughtful, more present, and more worthy of your trust — every day from here forward.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── YOU MATTER TO ME ── -->
+  <section>
+    <div class="fade-in">
+      <span class="section-label" style="text-align:center;display:block;">You Matter To Me</span>
+      <h2 class="matters-heading">Things I Want You<br />To Always Know</h2>
+      <p class="matters-sub">Not as promises I make only now — but as truths I hold about you, always.</p>
+    </div>
+
+    <div class="matters-grid">
+      <div class="matter-card fade-in">
+        <span class="card-icon">🌸</span>
+        <h4>Your pain is real to me</h4>
+        <p>What you were going through that day — the fear, the discomfort, the stress — all of it is real and valid. I see it now, and I am sorry I didn't fully hold it with you then.</p>
+      </div>
+
+      <div class="matter-card fade-in">
+        <span class="card-icon">🕊️</span>
+        <h4>You deserve to feel safe</h4>
+        <p>Not just physically — but emotionally. You should never have to wonder if I'm present for you. You deserve a partner who makes you feel held, even on the hardest days.</p>
+      </div>
+
+      <div class="matter-card fade-in">
+        <span class="card-icon">💛</span>
+        <h4>You are incredibly strong</h4>
+        <p>Going through health stress, managing everything you manage, and still carrying so much grace — you are stronger than you know. And I admire you deeply for it.</p>
+      </div>
+
+      <div class="matter-card fade-in">
+        <span class="card-icon">🌙</span>
+        <h4>You are not alone in this</h4>
+        <p>Whatever you face — difficult tests, uncertain days, moments of fear — I want to face them beside you. Not behind you. Not ahead of you. Right there, with you.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CAN WE FIX THIS ── -->
+  <section class="forgive-section">
+    <div class="fade-in">
+      <div class="heart-illustration">
+        <div class="heart-glow-wrap">
+          <svg class="heart-svg" viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 85 C50 85 5 55 5 28 C5 14 16 5 28 5 C37 5 46 11 50 18 C54 11 63 5 72 5 C84 5 95 14 95 28 C95 55 50 85 50 85Z"
+              fill="url(#heartGrad)" />
+            <defs>
+              <linearGradient id="heartGrad" x1="5" y1="5" x2="95" y2="85" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#f9a8b8" />
+                <stop offset="100%" stop-color="#e8939a" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+
+      <h2 class="forgive-heading">Can We Fix This?</h2>
+      <p class="forgive-sub">
+        I don't expect this to erase what happened. I only hope it shows you<br />
+        how much I value you, and how sincerely I want to be better for you.
+      </p>
+
+      <button class="forgive-btn" id="forgiveBtn" onclick="handleForgiveness()">
+        <span class="btn-spinner"></span>
+        <span class="btn-label">Can You Forgive Me? ❤️</span>
+      </button>
+    </div>
+  </section>
+
+</div>
+
+<footer class="page-footer">
+  Written with all the love I have for you <span class="footer-heart">❤️</span>
+</footer>
+
+<script>
+  /* ── Floating Hearts ── */
+  const heartsLayer = document.getElementById('heartsLayer');
+  const heartEmojis = ['❤️','💕','💗','💖','🌸','✨','💓','💞'];
+  function spawnHeart() {
+    const el = document.createElement('div');
+    el.className = 'heart';
+    el.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.fontSize = (0.8 + Math.random() * 0.9) + 'rem';
+    const dur = 10 + Math.random() * 14;
+    el.style.animationDuration = dur + 's';
+    el.style.animationDelay = Math.random() * 4 + 's';
+    heartsLayer.appendChild(el);
+    setTimeout(() => el.remove(), (dur + 4) * 1000);
+  }
+  setInterval(spawnHeart, 1800);
+  for (let i = 0; i < 6; i++) setTimeout(spawnHeart, i * 600);
+
+  /* ── Particles ── */
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  const colors = ['rgba(249,197,197,', 'rgba(247,220,200,', 'rgba(220,208,240,', 'rgba(232,201,126,'];
+
+  for (let i = 0; i < 55; i++) {
+    particles.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      r: 1 + Math.random() * 3,
+      dx: (Math.random() - 0.5) * 0.35,
+      dy: (Math.random() - 0.5) * 0.35,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      opacity: 0.2 + Math.random() * 0.5
+    });
+  }
+
+  function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + p.opacity + ')';
+      ctx.fill();
+      p.x += p.dx;
+      p.y += p.dy;
+      if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+    });
+    requestAnimationFrame(animateParticles);
+  }
+  animateParticles();
+
+  /* ── Fade-in Observer ── */
+  const fadeEls = document.querySelectorAll('.fade-in');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  fadeEls.forEach(el => observer.observe(el));
+
+  /* ── Typewriter Effect ── */
+  const apologyLines = [
+    { text: "I know that day was hard for you.", pause: 500 },
+    { text: "You were already stressed, scared, and in pain after the tests.", pause: 300 },
+    { text: "Instead of making you feel supported and cared for, I acted carelessly.", pause: 600 },
+    { text: "─", pause: 200 },
+    { text: "I should have checked on you.", pause: 200, class: "should-have" },
+    { text: "I should have stayed emotionally present.", pause: 200, class: "should-have" },
+    { text: "I should have understood what you were going through.", pause: 600, class: "should-have" },
+    { text: "─", pause: 200 },
+    { text: "And instead, I made you feel alone when you needed me the most.", pause: 600 },
+    { text: "─", pause: 200 },
+    { text: "I can't change that moment,", pause: 200 },
+    { text: "but I truly want you to know that I understand my mistake now.", pause: 600 },
+    { text: "─", pause: 200 },
+    { text: "You are not just someone I love —", pause: 200 },
+    { text: "you are someone whose pain should matter to me more than anything else.", pause: 600 },
+    { text: "─", pause: 200 },
+    { text: "I'm genuinely sorry for hurting you.", pause: 300 },
+    { text: "And if you allow me, I want to become better for you every single day. ❤️", pause: 0, class: "closing" }
+  ];
+
+  const apologyContainer = document.getElementById('apologyText');
+  let cursor = document.createElement('span');
+  cursor.className = 'typed-cursor';
+
+  function typeLines(lines, idx = 0) {
+    if (idx >= lines.length) {
+      cursor.remove();
+      return;
+    }
+    const line = lines[idx];
+    if (line.text === '─') {
+      const br = document.createElement('span');
+      br.className = 'line-break';
+      apologyContainer.appendChild(br);
+      setTimeout(() => typeLines(lines, idx + 1), 100);
+      return;
+    }
+
+    const span = document.createElement('span');
+    if (line.class) span.className = line.class;
+    apologyContainer.appendChild(span);
+    apologyContainer.appendChild(cursor);
+
+    let charIdx = 0;
+    const speed = 30 + Math.random() * 12;
+    function typeChar() {
+      if (charIdx < line.text.length) {
+        span.textContent += line.text[charIdx++];
+        setTimeout(typeChar, speed);
+      } else {
+        apologyContainer.appendChild(document.createElement('br'));
+        setTimeout(() => typeLines(lines, idx + 1), line.pause + 200);
+      }
+    }
+    typeChar();
+  }
+
+  const apologyObserver = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      setTimeout(() => typeLines(apologyLines), 600);
+      apologyObserver.disconnect();
+    }
+  }, { threshold: 0.3 });
+  apologyObserver.observe(apologyContainer);
+
+  /* ── EmailJS config — fill in your three IDs from emailjs.com ── */
+  const EMAILJS_PUBLIC_KEY  = 'VbI8ZnhqYxYoTm4fP';   // Account → API Keys
+  const EMAILJS_SERVICE_ID  = 'service_wt3kldq';   // Email Services tab
+  const EMAILJS_TEMPLATE_ID = 'template_r036spm';  // Email Templates tab
+
+  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+  async function sendForgivenessEmail() {
+    const now = new Date();
+    const timeStr = now.toLocaleString('en-IN', {
+      weekday: 'long', year: 'numeric', month: 'long',
+      day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email : 'vh8246138@gmail.com',
+      time     : timeStr,
+      message  : 'She read your apology and clicked "Can You Forgive Me?" — she chose to forgive you. Be worthy of it, every single day. ❤️'
+    });
+  }
+
+  /* ── Modal ── */
+  async function handleForgiveness() {
+    const btn = document.getElementById('forgiveBtn');
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    try {
+      await sendForgivenessEmail();
+    } catch (err) {
+      console.warn('EmailJS send failed:', err);
+      // still open modal — don't block the emotional moment
+    }
+
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    openModal();
+  }
+
+  function openModal() {
+    document.getElementById('modalOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    launchConfetti();
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  /* ── Confetti burst on forgiveness ── */
+  function launchConfetti() {
+    const burst = ['❤️','💕','💗','🌸','✨','💖','🌷','💞'];
+    for (let i = 0; i < 28; i++) {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.style.cssText = `
+          position:fixed;
+          top:50%;left:50%;
+          font-size:${1.2 + Math.random()}rem;
+          pointer-events:none;
+          z-index:2000;
+          transform:translate(-50%,-50%);
+          animation: confettiFly 2.2s ease-out forwards;
+          --tx: ${(Math.random()-0.5)*300}px;
+          --ty: ${(Math.random()-1)*280}px;
+        `;
+        el.textContent = burst[Math.floor(Math.random()*burst.length)];
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 2400);
+      }, i * 55);
+    }
+  }
+
+  const confettiStyle = document.createElement('style');
+  confettiStyle.textContent = `
+    @keyframes confettiFly {
+      0%   { opacity:1; transform: translate(-50%,-50%) scale(0.5); }
+      60%  { opacity:0.9; transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1.1); }
+      100% { opacity:0; transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty)*1.4)) scale(0.8); }
+    }
+  `;
+  document.head.appendChild(confettiStyle);
+</script>
+</body>
+</html>
